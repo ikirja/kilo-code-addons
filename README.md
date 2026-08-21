@@ -53,6 +53,46 @@ export ROUTERAI_API_KEY=sk-REPLACE_WITH_YOUR_KEY
 - Video: one video per call, compressed to ≤720p H.264, ≤2 minutes, mono AAC — the Gemini endpoint handles frames and audio natively.
 - Use `openssl base64 -in`, not `base64 -i` — macOS `base64` adds line breaks that break the data URI.
 
+## Bitrix24 skill
+
+`skills/bitrix24/SKILL.md` sends a text message to a Bitrix24 chat/channel via the `im.message.add` REST API, using an outbound webhook and `python3`+`urllib` (no `curl`).
+
+### Prerequisites
+
+- `python3` only — no ffmpeg or openssl needed.
+
+### Webhook (secret)
+
+The skill needs an outbound webhook URL and resolves it at runtime in this order:
+
+1. `BITRIX24_WEBHOOK` environment variable:
+
+   ```bash
+   export BITRIX24_WEBHOOK=https://bitrix24.example.com/rest/<id>/<token>/
+   ```
+
+2. The `webhook` value in `~/.config/kilo/bitrix24.json`:
+
+   ```json
+   {"webhook": "https://bitrix24.example.com/rest/<id>/<token>/"}
+   ```
+
+3. Otherwise it exits with `MISSING_BITRIX24_WEBHOOK`.
+
+The webhook URL embeds both the integration user id and the token in its path, so it is a secret: never commit it to this repo or paste it into chat. The integration user id is part of the URL — no separate parameter is needed.
+
+### Channels
+
+`DIALOG_ID` is always passed by the agent. Example:
+
+* `chat123456` — «Пример канала»
+
+### Usage
+
+Ask the agent, e.g.: "Отправь в канал «Пример канала» (chat123456): обновление вышло, смотри README." The agent loads the skill via the `skill` tool and runs the pipeline.
+
+**Secret handling:** no webhook is committed in this repo. Use only the `BITRIX24_WEBHOOK` env var or the config file above.
+
 ## Adding a new skill or command
 
 - Skills need YAML frontmatter with `name` and `description`; the description is what the skill picker shows. Invoke skills via the `skill` tool, never by pasting their contents into prompts.
