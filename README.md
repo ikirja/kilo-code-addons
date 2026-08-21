@@ -22,11 +22,13 @@ cp commands/*.md ~/.config/kilo/commands/
 
 All commands expect a git + npm repo (the session's project) and read its root `AGENTS.md` for the repo's own conventions (pre-commit script, commit style, changelog rules).
 
+Note: Kilo ships a built-in `/review` command (single-pass review of uncommitted/staged/unpushed/branch/commit/PR changes). This repo's `/review-loop` is the automated fix loop described below — the names intentionally differ so they don't collide.
+
 | Command | What it does |
 |---|---|
 | `/tests-docs` | Runs the test suite, updates stale tests; audits maintained docs (`README`, `AGENTS`, `CLAUDE`, `CHANGELOG`, `docs/`) and updates what is stale. No commit. |
 | `/commit` | Runs `npm run pre-commit`, fixes every failure until green, commits with a conventional message. No push. |
-| `/review [N]` | Iterative review: reviews the last N commits (default 1), fixes all findings, runs pre-commit, commits fixes, and repeats with N+1 until clean (max 4 rounds). |
+| `/review-loop [N]` | Iterative review: reviews the last N commits (default 1), fixes all findings, runs pre-commit, commits fixes, and repeats with N+1 until clean (max 4 rounds). |
 | `/release [patch\|minor\|major\|X.Y.Z]` | Bumps version (CHANGELOG `[Unreleased]` → `[X.Y.Z]` + link refs, `package.json`), runs pre-commit, commits the version bump (`release:` in rankup-app/landings, `chore:` in widget-pro/orbitron-hub — per repo style). Never touches `package-lock.json`. No tag. |
 | `/tag-push [version]` | Creates `vX.Y.Z` on HEAD and pushes the tag (triggers CI/CD deploy). |
 | `/analyze-video [path]` | Reads videos in `temp/`/`temp-docs/` (or path) via the vision skill, then follows the shared `ecosystem-analysis` skill to categorize into bugs/updates/feature suggestions and write a plan for the current app (`.kilo/plans/`) plus ecosystem info (`.kilo/plans/TEMP.md`). |

@@ -1,5 +1,5 @@
 ---
-description: "Review the last N commits, fix all findings, run pre-commit, repeat until clean. Usage: /review [N] (default 1)"
+description: "Review the last N commits, fix all findings, run pre-commit, repeat until clean. Usage: /review-loop [N] (default 1)"
 ---
 
 Run an iterative code review loop over the last commits in this repository until no review findings remain.
