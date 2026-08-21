@@ -1,11 +1,11 @@
 # Kilo Code-Addons
 
-Personal add-ons for the user's Kilo setup: **skills** (`skills/`) and **slash commands** (`commands/`, currently empty). Pure Markdown — no build, test, lint, or packaging step.
+Personal add-ons for the user's Kilo setup: **skills** (`skills/`) and **slash commands** (`commands/`). Pure Markdown — no build, test, lint, or packaging step.
 
 ## Layout
 
 - `skills/<name>/SKILL.md` — a skill. Kilo loads it only after it is mirrored to `~/.config/kilo/skills/<name>/SKILL.md`.
-- `commands/` — slash commands; mirror to `~/.config/kilo/commands/`.
+- `commands/<name>.md` — slash commands (`/name`). Mirror to `~/.config/kilo/commands/`.
 
 ## Installing / syncing
 
@@ -13,7 +13,23 @@ Kilo does not read this repo directly. After editing a skill or command here, co
 
 ```bash
 cp -r skills/vision ~/.config/kilo/skills/vision
+cp -r skills/ecosystem-analysis ~/.config/kilo/skills/ecosystem-analysis
+cp commands/*.md ~/.config/kilo/commands/
 ```
+
+## Slash commands
+
+All commands expect a git + npm repo (the session's project) and read its root `AGENTS.md` for the repo's own conventions (pre-commit script, commit style, changelog rules).
+
+| Command | What it does |
+|---|---|
+| `/tests-docs` | Runs the test suite, updates stale tests; audits maintained docs (`README`, `AGENTS`, `CLAUDE`, `CHANGELOG`, `docs/`) and updates what is stale. No commit. |
+| `/commit` | Runs `npm run pre-commit`, fixes every failure until green, commits with a conventional message. No push. |
+| `/review [N]` | Iterative review: reviews the last N commits (default 1), fixes all findings, runs pre-commit, commits fixes, and repeats with N+1 until clean (max 4 rounds). |
+| `/release [patch\|minor\|major\|X.Y.Z]` | Bumps version (CHANGELOG `[Unreleased]` → `[X.Y.Z]` + link refs, `package.json`), runs pre-commit, commits `release: bump version to X.Y.Z`. Never touches `package-lock.json`. No tag. |
+| `/tag-push [version]` | Creates `vX.Y.Z` on HEAD and pushes the tag (triggers CI/CD deploy). |
+| `/analyze-video [path]` | Reads videos in `temp/`/`temp-docs/` (or path) via the vision skill, then follows the shared `ecosystem-analysis` skill to categorize into bugs/updates/feature suggestions and write a plan for the current app (`.kilo/plans/`) plus ecosystem info (`.kilo/plans/TEMP.md`). |
+| `/analyze-docs [path]` | Same as `/analyze-video` but for `.docx`/`.pdf`/`.doc` (text extraction via unzip/python3/pandoc/libreoffice, no vision skill). |
 
 ## Vision skill
 
@@ -93,7 +109,11 @@ Ask the agent, e.g.: "Отправь в канал «Пример канала»
 
 **Secret handling:** no webhook is committed in this repo. Use only the `BITRIX24_WEBHOOK` env var or the config file above.
 
+## Ecosystem-analysis skill
+
+`skills/ecosystem-analysis/SKILL.md` holds the shared rules used by both `/analyze-video` and `/analyze-docs`: mapping findings to the current app vs. sibling ecosystem repos (`rankup-app`, `widget-pro`, `orbitron-hub`, `rankup-landing`, `orbitron-landing`), categorizing into bugs / updates / feature suggestions, and writing the plan (`.kilo/plans/<epoch-ms>-<slug>.md`) and ecosystem file (`.kilo/plans/TEMP.md`). It is loaded via the `skill` tool, so the two analyzers share a single source of truth.
+
 ## Adding a new skill or command
 
 - Skills need YAML frontmatter with `name` and `description`; the description is what the skill picker shows. Invoke skills via the `skill` tool, never by pasting their contents into prompts.
-- Commands are Markdown files in `commands/`, mirrored to `~/.config/kilo/commands/`.
+- Commands are Markdown files in `commands/` with a `description` frontmatter (the filename minus `.md` is the command name), mirrored to `~/.config/kilo/commands/`. Body supports `$1`–`$N`, `$ARGUMENTS`, `@file`, and `` !`cmd` `` templates.

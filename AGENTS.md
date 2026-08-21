@@ -5,8 +5,8 @@ Personal Kilo code-addons repo: global skills and slash commands for the user's 
 ## Layout and deploy model
 
 - `skills/<name>/SKILL.md` — skills, loaded only if mirrored to `~/.config/kilo/skills/<name>/SKILL.md`.
-- `commands/` — slash commands (currently empty); mirror to `~/.config/kilo/commands/`.
-- Changes here are NOT picked up automatically. After editing a skill, copy it to `~/.config/kilo/skills/<name>/SKILL.md` (the copy is a separate file, not a symlink) — that is what Kilo actually loads at runtime. E.g. `skills/vision` → `~/.config/kilo/skills/vision`, `skills/bitrix24` → `~/.config/kilo/skills/bitrix24`.
+- `commands/<name>.md` — slash commands (`/tests-docs`, `/commit`, `/review`, `/release`, `/tag-push`, `/analyze-video`, `/analyze-docs`); mirror to `~/.config/kilo/commands/`.
+- Changes here are NOT picked up automatically. After editing a skill, copy it to `~/.config/kilo/skills/<name>/SKILL.md` (the copy is a separate file, not a symlink) — that is what Kilo actually loads at runtime. E.g. `skills/vision` → `~/.config/kilo/skills/vision`, `skills/bitrix24` → `~/.config/kilo/skills/bitrix24`, `skills/ecosystem-analysis` → `~/.config/kilo/skills/ecosystem-analysis`.
 
 ## Skill format
 
