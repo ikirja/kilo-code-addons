@@ -1,0 +1,7 @@
+# Kilo config files contain the real RouterAI API key — never commit them
+kilo.json
+kilo.jsonc
+
+# OS / editor noise
+.DS_Store
+*.swp
