@@ -36,7 +36,7 @@ Note: Kilo ships a built-in `/review` command (single-pass review of uncommitted
 | `/tag-push [version]` | Creates `vX.Y.Z` on HEAD and pushes the tag (triggers CI/CD deploy). |
 | `/analyze-video [path]` | Reads videos in `temp/`/`temp-docs/` (or path) via the vision skill, then follows the shared `ecosystem-analysis` skill to categorize into bugs/updates/feature suggestions and write a plan for the current app (`.kilo/plans/`) plus ecosystem info (`.kilo/plans/TEMP.md`). |
 | `/analyze-docs [path]` | Same as `/analyze-video` but for `.docx`/`.pdf`/`.doc` (text extraction via unzip/python3/pandoc/libreoffice, no vision skill). |
-| `/implement-plan [path]` | Fully autonomous 6-step pipeline: implement the plan, `/tests-docs`, `/commit`, `/review-loop`, `/tests-docs`, `/commit`, then writes a `TEMP_N.md` decision log in the project root. No approval prompts, never pushes. Runs under the `implementer` agent, which holds allow-all edit permission and is only used by this command. |
+| `/implement-plan [path]` | Fully autonomous 6-step pipeline: implement the plan, `/tests-docs`, `/commit`, `/review-loop`, `/tests-docs`, `/commit`, then writes a `TEMP_N.md` decision log in the project root. No approval prompts, never pushes. Runs under the `implementer` agent, which holds allow-all edit permission and is only used by this command. `TEMP.md` / `TEMP_N.md` decision logs are developer-only: the command gitignores them and never stages or commits them. |
 
 ## Implementer agent
 

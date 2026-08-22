@@ -8,25 +8,26 @@ Fully autonomous plan-implementation pipeline. You are the implementer agent: do
 ## Setup
 - Plan path = `$1` (relative to project root or absolute). If empty, or if `$1` does not exist, glob `.kilo/plans/*.md`, pick the most recently modified, and record that decision.
 - Read the plan file fully, then read the repo's root `AGENTS.md` and follow its constraints (pre-commit definition, commit style, changelog rules, never-commit rules).
-- Run `git status`. If there are uncommitted changes, commit them first as a baseline (`chore:` message matching `git log --oneline -10` style) and record the decision. Do NOT push.
+- Run `git status`. If there are uncommitted changes, commit them first as a baseline (`chore:` message matching `git log --oneline -10` style), staging ONLY the pre-existing files and never any `TEMP*.md`; record the decision. Do NOT push.
+- TEMP files never enter a commit: `TEMP.md` / `TEMP_N.md` are developer-only decision logs and must stay untracked. Before EVERY commit (baseline, STEP 3, STEP 4, STEP 6) run `git status --short` and confirm no `TEMP*.md` is staged; if one is, unstage it with `git restore --staged TEMP*.md`. If a `TEMP*.md` is already tracked, never modify or stage it. The decision log itself is written in STEP 7, after the final commit.
 
 ## STEP 1 — Implement the plan
-Implement every actionable item in order, marking items done as you go. Ambiguous item → decide the most reasonable interpretation, implement it, record the decision. Impossible item (contradicts architecture/security/repo rules) → skip it, record the reason, continue.
+First, ensure the repo `.gitignore` contains `TEMP.md` and `TEMP_*.md` (add if missing; record the decision) so TEMP files can never be committed. Then implement every actionable item in order, marking items done as you go. Ambiguous item → decide the most reasonable interpretation, implement it, record the decision. Impossible item (contradicts architecture/security/repo rules) → skip it, record the reason, continue.
 
 ## STEP 2 — /tests-docs
 Read `~/.config/kilo/commands/tests-docs.md` (resolve the home dir; if missing, read `/home/kirill/Development/easyoneweb-projects/kilo-code-addons/commands/tests-docs.md`) and follow it exactly. Do NOT commit.
 
 ## STEP 3 — /commit
-Read `~/.config/kilo/commands/commit.md` (fallback path as above) and follow it. Override: if the message is ambiguous, do NOT ask — decide the conventional message from `git log --oneline -10` style and record it. Commits implementation + test/doc updates. Do NOT push.
+Read `~/.config/kilo/commands/commit.md` (fallback path as above) and follow it. Override: if the message is ambiguous, do NOT ask — decide the conventional message from `git log --oneline -10` style and record it. Commits implementation + test/doc updates. Exclude any `TEMP*.md`. Do NOT push.
 
 ## STEP 4 — /review-loop
-Read `~/.config/kilo/commands/review-loop.md` (fallback path as above) and follow it (review recent commits, fix findings, commit fixes, repeat until clean, max 4 rounds). Overrides: tree is already clean (from Setup) — never ask about a dirty tree; if findings remain after 4 rounds, stop and record the open findings instead of asking. Do NOT push.
+Read `~/.config/kilo/commands/review-loop.md` (fallback path as above) and follow it (review recent commits, fix findings, commit fixes, repeat until clean, max 4 rounds). Overrides: tree is already clean (from Setup) — never ask about a dirty tree; if findings remain after 4 rounds, stop and record the open findings instead of asking. Exclude any `TEMP*.md` from every fix commit. Do NOT push.
 
 ## STEP 5 — /tests-docs again
 Read `~/.config/kilo/commands/tests-docs.md` (fallback path as above) and follow it again — verify tests still green after review fixes and update docs if the review fixes changed anything user-facing. Do NOT commit.
 
 ## STEP 6 — final /commit
-Read `~/.config/kilo/commands/commit.md` (fallback path as above) and follow it. If nothing to commit, say so and record it. Otherwise commit with a conventional message. Do NOT push.
+Read `~/.config/kilo/commands/commit.md` (fallback path as above) and follow it. If nothing to commit, say so and record it. Otherwise commit with a conventional message. Exclude any `TEMP*.md`. Do NOT push.
 
 ## STEP 7 — Decision log
 Create `TEMP_N.md` in the project root: use `TEMP.md` if it does not exist, else the smallest free `TEMP_1.md`, `TEMP_2.md`, … Include: plan file path, date, per-step status (1–6), every decision made (decision + rationale + step), open issues/blockers, and the commit hashes produced.
