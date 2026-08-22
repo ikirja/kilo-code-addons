@@ -6,6 +6,7 @@ Personal add-ons for the user's Kilo setup: **skills** (`skills/`) and **slash c
 
 - `skills/<name>/SKILL.md` — a skill. Kilo loads it only after it is mirrored to `~/.config/kilo/skills/<name>/SKILL.md`.
 - `commands/<name>.md` — slash commands (`/name`). Mirror to `~/.config/kilo/commands/`.
+- `agents/<name>.md` — agents. Mirror to `~/.config/kilo/agents/<name>.md`.
 
 ## Installing / syncing
 
@@ -16,6 +17,8 @@ cp -r skills/vision ~/.config/kilo/skills/vision
 cp -r skills/bitrix24 ~/.config/kilo/skills/bitrix24
 cp -r skills/ecosystem-analysis ~/.config/kilo/skills/ecosystem-analysis
 cp commands/*.md ~/.config/kilo/commands/
+mkdir -p ~/.config/kilo/agents
+cp agents/implementer.md ~/.config/kilo/agents/implementer.md
 ```
 
 ## Slash commands
@@ -33,6 +36,11 @@ Note: Kilo ships a built-in `/review` command (single-pass review of uncommitted
 | `/tag-push [version]` | Creates `vX.Y.Z` on HEAD and pushes the tag (triggers CI/CD deploy). |
 | `/analyze-video [path]` | Reads videos in `temp/`/`temp-docs/` (or path) via the vision skill, then follows the shared `ecosystem-analysis` skill to categorize into bugs/updates/feature suggestions and write a plan for the current app (`.kilo/plans/`) plus ecosystem info (`.kilo/plans/TEMP.md`). |
 | `/analyze-docs [path]` | Same as `/analyze-video` but for `.docx`/`.pdf`/`.doc` (text extraction via unzip/python3/pandoc/libreoffice, no vision skill). |
+| `/implement-plan [path]` | Fully autonomous 6-step pipeline: implement the plan, `/tests-docs`, `/commit`, `/review-loop`, `/tests-docs`, `/commit`, then writes a `TEMP_N.md` decision log in the project root. No approval prompts, never pushes. Runs under the `implementer` agent, which holds allow-all edit permission and is only used by this command. |
+
+## Implementer agent
+
+`agents/implementer.md` is a dedicated agent (`mode: all`) with `edit: {"**": "allow"}` plus `bash`/`read` allow, so `/implement-plan` runs without approval prompts — including changes to `AGENTS.md`. It is intentionally scoped: the default `code` agent stays interactive. For the pipeline to read the inner command files, `~/.config/kilo/kilo.jsonc` needs `"/home/kirill/.config/kilo/commands/*": "allow"` under `permission.external_directory`.
 
 ## Vision skill
 
