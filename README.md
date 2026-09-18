@@ -118,6 +118,15 @@ The webhook URL embeds both the integration user id and the token in its path, s
 
 Ask the agent, e.g.: "Отправь в канал «Пример канала» (chat123456): обновление вышло, смотри README." The agent loads the skill via the `skill` tool and runs the pipeline.
 
+### Release announcement guidelines
+
+For release announcements, the skill builds the message as a user-friendly overview, not a technical changelog:
+
+- Use emojis (sparingly) to open and structure the message.
+- Strip down technical details — no library names, version-bump numbers, or commit jargon; explain what changed in plain terms.
+- Include the service name and the current release version in the message (e.g. "RankUp 2.4.0").
+- Keep it short and positive.
+
 **Secret handling:** no webhook is committed in this repo. Use only the `BITRIX24_WEBHOOK` env var or the config file above.
 
 ## Ecosystem-analysis skill

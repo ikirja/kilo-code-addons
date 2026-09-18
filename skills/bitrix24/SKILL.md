@@ -10,11 +10,11 @@ This skill lets the main agent send a text message to a Bitrix24 chat/channel vi
 ## Architecture
 
 Main Agent (DeepSeek)
-  -> resolves the webhook at runtime (env var or local config, never hardcoded)
-  -> form-encodes DIALOG_ID + MESSAGE
-  -> POSTs to `<webhook>/im.message.add` via python3+urllib
-  -> receives the message id or an error
-  -> reports to the user
+-> resolves the webhook at runtime (env var or local config, never hardcoded)
+-> form-encodes DIALOG_ID + MESSAGE
+-> POSTs to `<webhook>/im.message.add` via python3+urllib
+-> receives the message id or an error
+-> reports to the user
 
 ## Webhook resolution
 
@@ -29,15 +29,16 @@ Never hardcode or commit the webhook in this repo. See README.md for the config 
 ## Workflow: send a message
 
 1. **Determine the target channel**: use the channel table in README.md or the DIALOG_ID from the user's request. If ambiguous, ask the user.
-2. **Build the message**: keep it short and plain. Multiline text and Cyrillic work (the message is a triple-quoted string below).
-3. **Run this bash command**, replacing `'chat123456'` and the message text:
+2. **Build the message**: keep it short and plain. Multiline text and Cyrillic work. For new-release announcements, follow the release announcement guidelines below.
+3. **Write the message and the target channel id to temp files** (e.g. `/tmp/kilo-bitrix24-message.txt` and `/tmp/kilo-bitrix24-dialog-id.txt`, plain UTF-8). Neither value is ever interpolated into the shell command — shell metacharacters (`$`, backticks, quotes) in a message or channel id would otherwise be executed by the shell.
+4. **Run this bash command**:
 
 ```
 python3 -c "
 import os, json, sys, urllib.request, urllib.parse
 
-dialog_id = 'chat123456'
-message = '''MESSAGE_TEXT_HERE'''
+dialog_id = open(sys.argv[2], encoding='utf-8').read().strip()
+message = open(sys.argv[1], encoding='utf-8').read().rstrip('\n')
 
 webhook = os.environ.get('BITRIX24_WEBHOOK') or ''
 if not webhook:
@@ -60,10 +61,19 @@ try:
     print(f'SENT: message id {resp.get(\"result\")}')
 except urllib.error.HTTPError as e:
     print(f'HTTP {e.code}: {e.read().decode()}')
-"
+" /tmp/kilo-bitrix24-message.txt /tmp/kilo-bitrix24-dialog-id.txt
 ```
 
-4. **Report**: relay `SENT: message id <id>` to the user, or the error output verbatim.
+5. **Report**: relay `SENT: message id <id>` to the user, or the error output verbatim.
+
+## Release announcement guidelines
+
+When the task is to announce a new release in a channel, follow these message rules:
+
+- **Use emojis**: open with a fitting emoji (e.g. 🚀 for a release) and use emojis sparingly to structure the message.
+- **Strip down technical details**: drop library names, version-bump numbers, commit details, and jargon — keep only a user-friendly overview of what changed and why it matters to the reader.
+- **Include the service name and the current release version** in the message (e.g. "RankUp 2.4.0").
+- Keep the message short and positive — a few short lines. Multiline text and Cyrillic work.
 
 ## Response handling
 
@@ -74,6 +84,6 @@ except urllib.error.HTTPError as e:
 ## Security constraints
 
 - The webhook is a secret (contains the integration user id + token). Never echo it into chat, files, or README placeholders.
-- If the message text itself contains `'''`, do not inline it — write the message to a temp file and load it in the script instead.
+- Never inline the message or the channel id into the shell command — write them to temp files first. Values containing `$`, backticks, or `"` would otherwise be executed by the shell.
 - Test sends post a real, visible message to the target channel — keep them short and few.
 - Only one webhook is configured; override it per-call via `BITRIX24_WEBHOOK` if needed.
