@@ -29,7 +29,7 @@ Never hardcode or commit the webhook in this repo. See README.md for the config 
 ## Workflow: send a message
 
 1. **Determine the target channel**: use the channel table in README.md or the DIALOG_ID from the user's request. If ambiguous, ask the user.
-2. **Build the message**: keep it short and plain. Multiline text and Cyrillic work. For new-release announcements, follow the release announcement guidelines below.
+2. **Build the message**: for new-release announcements, follow the release announcement guidelines below (structured, information-rich). For other messages keep it short and plain. Multiline text and Cyrillic work.
 3. **Write the message and the target channel id to temp files** (e.g. `/tmp/kilo-bitrix24-message.txt` and `/tmp/kilo-bitrix24-dialog-id.txt`, plain UTF-8). Neither value is ever interpolated into the shell command — shell metacharacters (`$`, backticks, quotes) in a message or channel id would otherwise be executed by the shell.
 4. **Run this bash command**:
 
@@ -68,12 +68,46 @@ except urllib.error.HTTPError as e:
 
 ## Release announcement guidelines
 
-When the task is to announce a new release in a channel, follow these message rules:
+When the task is to announce a new release in a channel, produce a structured, information-rich message. This is what a good message looks like:
 
-- **Use emojis**: open with a fitting emoji (e.g. 🚀 for a release) and use emojis sparingly to structure the message.
-- **Strip down technical details**: drop library names, version-bump numbers, commit details, and jargon — keep only a user-friendly overview of what changed and why it matters to the reader.
-- **Include the service name and the current release version** in the message (e.g. "RankUp 2.4.0").
-- Keep the message short and positive — a few short lines. Multiline text and Cyrillic work.
+```
+🚀 Сайт РанкАп (rank-up.ru) — релиз 1.0.14
+
+Что изменилось на сайте:
+
+🏥 НаПоправку — 5-я площадка
+• Платформа НаПоправку добавлена во все ключевые разделы: главная, «О компании», страница аудита (теперь «5 площадок»), «Подключение площадок» и отраслевые страницы медицины и стоматологии
+• Копия главной обновлена: «на пяти площадках»
+
+📚 Журнал — большая переработка
+• Статьи переработаны: ответы на вопросы в начале, разделы «Честно», таблицы сравнений и «можно/нельзя», даты «Обновлено», ссылки на источники, дисклеймеры на юридических и медицинских материалах
+• Дубликаты статей на английском объединены с русскими версиями (с редиректами)
+• Новая авторская страница: биография и список всех статей Александра Ткачёва
+• RSS-лента /blog/rss.xml — последние 30 статей с обложками, авторами и категориями
+• Обложки статей переведены на растровые jpg/webp
+
+🤖 SEO и технические обновления
+• Новый файл llms.txt — понятный индекс сайта для ИИ-поисковиков, обновляется при каждой сборке
+• Новые schema-разметки: Blog, ProfilePage, HowTo, BlogPosting
+• Улучшенные мета-теги: robots с max-image-preview, article:published_time и другие
+• Карта сайта с актуальными датами обновления статей
+• Единый стандарт типографики (тире, «ёлочки») во всех материалах
+
+🛠 Исправлено
+• Уточнено заявление про «90% заполненность карточки» в двух статьях журнала, добавлена ссылка на новый гайд по синей галочке
+
+Пилот 14 дней бесплатно — rank-up.ru
+```
+
+Message rules:
+
+- **Header**: open with a fitting emoji (🚀 for a release), the service name and the current release version (e.g. "RankUp 2.4.0"), and, if helpful, a short line like "Что изменилось:" before the sections.
+- **Cover everything**: review the changelog / release notes (and llms.txt where present) and include ALL meaningful changes from the release, not just the headline ones. A release announcement should be information-rich, not a one-liner.
+- **Group into sections**: arrange the changes into 3-6 thematic sections (features, content, SEO/technical, fixes). Every section starts with an emoji and a short title on its own line; pick an emoji that matches the theme (e.g. 🏥 new platform, 📚 content, 🤖 SEO/technical, 🛠 fixes).
+- **Bullets**: list each concrete change of a section as a `•` bullet on its own line, with a short user-facing description of what changed and why it matters. Bullets may be a couple of clauses long, but stay readable.
+- **No technical deep info**: drop library names, dependency/version-bump numbers, commit hashes, internal architecture, config details and jargon. Rephrase technical changes into user-visible benefits (e.g. "llms.txt — понятный индекс сайта для ИИ-поисковиков" instead of raw technical detail).
+- **End with a call to action**: close with a last line with the pricing/pilot info and the link (e.g. "Пилот 14 дней бесплатно — rank-up.ru").
+- **Language**: write in the channel's language — Cyrillic works. Multiline text is fine.
 
 ## Response handling
 
